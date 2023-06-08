@@ -49,6 +49,29 @@ Unite form e tabella in un'unica pagina. Avrete quindi una pagina con form la cu
         ],
     ];
 
+   
+$checkParking = null; 
+if (array_key_exists("parking", $_GET)) {
+    $checkParking = $_GET["parking"];
+}; 
+
+$minVote = 0; 
+
+if (array_key_exists("vote", $_GET)) {
+    $minVote = $_GET["vote"];
+};
+
+$filteredArray = [];
+
+foreach ($hotels as $hotel) {
+    if ($hotel["parking"] == $checkParking || $checkParking === null) {
+        if ($hotel["vote"] >= $minVote) {
+            $filteredArray[] = $hotel;
+        }
+    }
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -59,11 +82,42 @@ Unite form e tabella in un'unica pagina. Avrete quindi una pagina con form la cu
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>php-hotel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <style>
+        form {
+            font-size: 0.9rem;
+        }
+        .votation input {
+            width: fit-content;
+            height: fit-content;
+            font-size: 0.8rem;
+        }
+        .btn {
+            font-size: 0.85rem;
+        }
+    </style>
 </head>
 <body>
     
     <div class="container">
         <h1 class="py-4">PHP Hotels</h1>
+
+        <form method="get" class="d-flex align-items-center mb-4">
+            <div class="parking">
+                <input class="form-check-input" type="checkbox" value="true" id="parking" name="parking">
+                <label class="form-check-label" for="parking">
+                    Filter hotels with parking
+                </label> 
+            </div> 
+            <div class="votation ps-5">
+                <label for="vote" class="form-label d-inline-block m-0">
+                    Filter by minimum vote
+                </label>
+                <input type="number" class="form-control d-inline-block px-2 py-1" id="vote" name="vote" min="1" max="5">
+            </div>
+            <button type="submit" class="btn btn-dark px-2 py-1 mx-3">Filter</button>
+        </form>
+
+
         <table class="table">
             <thead>
                 <?php foreach ($hotels[0] as $key => $value) : ?>
@@ -71,17 +125,17 @@ Unite form e tabella in un'unica pagina. Avrete quindi una pagina con form la cu
                 <?php endforeach?>
             </thead>
             <tbody>
-                <?php foreach ($hotels as $hotel) : ?>
+                <?php foreach ($filteredArray as $hotel) : ?>
                     <tr>
-                        <?php foreach ($hotel as $key => $value) : ?>
-                            <?php if ($value === true) : ?>
-                                <td>Yes</td>
-                            <?php elseif ($value === false) : ?>
-                                <td>No</td>
-                            <?php else : ?>
-                            <td><?= $value ?></td>
-                            <?php endif ?>
-                        <?php endforeach ?>
+                        <td><?= $hotel["name"] ?></td>
+                        <td><?= $hotel["description"] ?></td>
+                        <?php if ($hotel["parking"] == true) : ?>
+                            <td>Yes</td>
+                        <?php else : ?>
+                            <td>No</td>
+                        <?php endif ?>
+                        <td><?= $hotel["vote"] ?></td>
+                        <td><?= $hotel["distance_to_center"] ?></td>
                     </tr>
                 <?php endforeach ?>
             </tbody>
